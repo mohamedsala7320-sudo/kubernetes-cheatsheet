@@ -59,3 +59,136 @@
 3. kubectl get pods -n <namespace_name>   //=======> to list pods inside a specific namespace.
 4. kubectl delete namespace <ns_name>     //=======> to delete a specific namespace and its resources.
 ```
+
+                         ================================================================================
+                                           
+                               ##Kubernetes Zero Trust Architecture - Network Policies 🛡️##
+                                      ==============================================
+                                      
+هذا التوثيق يوضح سياسات الأمان العازلة (Network Policies) المطبقة لتأمين تطبيق مكون من ثلاث طبقات (Three-Tier Application): Frontend, Backend, و MySQL Database.
+
+1. Default Deny All Policy
+هذه السياسة تقوم بحظر جميع حركة المرور (Ingress و Egress) افتراضياً على مستوى الـ Namespace كخطوة أولى لتطبيق مبدأ "Zero Trust".
+
+```bash
+
+YAML
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+```
+                                      =======================================
+                                      
+2. Frontend Egress Policy
+تسمح هذه السياسة لطبقة الواجهة الأمامية (Frontend) بإرسال الترافيك حصرياً إلى طبقة الـ Backend على البورت 5000.
+
+```bash
+
+YAML
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-allow-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 5000
+```
+
+                          =====================================================
+3. Backend Ingress Policy
+تسمح هذه السياسة لطبقة الـ Backend باستقبال الترافيك القادم فقط من الـ Frontend على البورت 5000.
+
+YAML
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-allow-ingress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 5000
+4. Backend Egress Policy
+تسمح هذه السياسة لطبقة الـ Backend بإرسال الترافيك نحو قاعدة البيانات MySQL على البورت 3306.
+
+YAML
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-allow-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: mysql
+    ports:
+    - protocol: TCP
+      port: 3306
+5. MySQL Ingress Policy
+تسمح هذه السياسة لقاعدة البيانات MySQL باستقبال الاتصالات حصرياً من الـ Backend على البورت 3306.
+
+YAML
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mysql-allow-ingress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 3306
+أوامر التطبيق (Deployment Commands):
+لتطبيق هذه السياسات دفعة واحدة على الكلاستر:
+
+Bash
+kubectl apply -f network-policy-deny-all.yaml
+kubectl apply -f network-policy-frontend-egress.yaml
+kubectl apply -f network-policy-backend-ingress.yaml
+kubectl apply -f network-policy-backend-egress.yaml
+kubectl apply -f network-policy-mysql-ingress.yaml
