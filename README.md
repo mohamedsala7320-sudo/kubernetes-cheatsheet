@@ -114,8 +114,11 @@ spec:
 ```
 
                           =====================================================
+                          
 3. Backend Ingress Policy
 تسمح هذه السياسة لطبقة الـ Backend باستقبال الترافيك القادم فقط من الـ Frontend على البورت 5000.
+
+```bash
 
 YAML
 apiVersion: networking.k8s.io/v1
@@ -137,8 +140,15 @@ spec:
     ports:
     - protocol: TCP
       port: 5000
+```
+
+                       ========================================================
+
+                       
 4. Backend Egress Policy
 تسمح هذه السياسة لطبقة الـ Backend بإرسال الترافيك نحو قاعدة البيانات MySQL على البورت 3306.
+
+```bash
 
 YAML
 apiVersion: networking.k8s.io/v1
@@ -160,8 +170,13 @@ spec:
     ports:
     - protocol: TCP
       port: 3306
+```
+
+                               ================================================
+                               
 5. MySQL Ingress Policy
 تسمح هذه السياسة لقاعدة البيانات MySQL باستقبال الاتصالات حصرياً من الـ Backend على البورت 3306.
+```bash
 
 YAML
 apiVersion: networking.k8s.io/v1
@@ -183,6 +198,7 @@ spec:
     ports:
     - protocol: TCP
       port: 3306
+```
 أوامر التطبيق (Deployment Commands):
 لتطبيق هذه السياسات دفعة واحدة على الكلاستر:
 
