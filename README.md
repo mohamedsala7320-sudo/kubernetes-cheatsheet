@@ -72,7 +72,6 @@
 
 ```bash
 
-YAML
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -91,7 +90,6 @@ spec:
 
 ```bash
 
-YAML
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -120,7 +118,6 @@ spec:
 
 ```bash
 
-YAML
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -150,7 +147,6 @@ spec:
 
 ```bash
 
-YAML
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -178,7 +174,6 @@ spec:
 تسمح هذه السياسة لقاعدة البيانات MySQL باستقبال الاتصالات حصرياً من الـ Backend على البورت 3306.
 ```bash
 
-YAML
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -202,9 +197,12 @@ spec:
 أوامر التطبيق (Deployment Commands):
 لتطبيق هذه السياسات دفعة واحدة على الكلاستر:
 
-Bash
+```bash
+
 kubectl apply -f network-policy-deny-all.yaml
 kubectl apply -f network-policy-frontend-egress.yaml
 kubectl apply -f network-policy-backend-ingress.yaml
 kubectl apply -f network-policy-backend-egress.yaml
 kubectl apply -f network-policy-mysql-ingress.yaml
+
+```
